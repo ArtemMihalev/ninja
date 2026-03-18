@@ -17,7 +17,11 @@ class Player {
         
         // Состояния
         this.facingRight = true;
-        this.state = 'idle'; // idle, walking, jumping
+        this.state = 'idle';
+        
+        // Защита от множественных прыжков
+        this.canJump = true;
+        this.jumpCooldown = 0;
     }
     
     getCollisionRect() {
@@ -32,13 +36,17 @@ class Player {
     moveLeft() {
         this.velocityX = -this.speed;
         this.facingRight = false;
-        this.state = 'walking';
+        if (this.grounded) {
+            this.state = 'walking';
+        }
     }
     
     moveRight() {
         this.velocityX = this.speed;
         this.facingRight = true;
-        this.state = 'walking';
+        if (this.grounded) {
+            this.state = 'walking';
+        }
     }
     
     stop() {
@@ -49,16 +57,30 @@ class Player {
     }
     
     jump() {
-        if (this.grounded) {
+        if (this.grounded && this.canJump) {
             this.velocityY = this.jumpStrength;
             this.grounded = false;
             this.state = 'jumping';
+            this.canJump = false;
+            this.jumpCooldown = 10; // Небольшая задержка перед следующим прыжком
         }
     }
     
     update(gravity) {
+        // Обновляем кулдаун прыжка
+        if (this.jumpCooldown > 0) {
+            this.jumpCooldown--;
+        } else {
+            this.canJump = true;
+        }
+        
         // Применяем гравитацию
         this.velocityY += gravity;
+        
+        // Ограничиваем максимальную скорость падения
+        if (this.velocityY > 15) {
+            this.velocityY = 15;
+        }
         
         // Обновляем позицию
         this.x += this.velocityX;
@@ -67,8 +89,10 @@ class Player {
         // Ограничение по бокам экрана
         if (this.x < 0) {
             this.x = 0;
+            this.velocityX = 0;
         } else if (this.x + this.width > 800) {
             this.x = 800 - this.width;
+            this.velocityX = 0;
         }
         
         // Обновление анимации
@@ -86,10 +110,15 @@ class Player {
             this.currentFrame = 0;
             this.frameCounter = 0;
         }
+        
+        // Сбрасываем состояние на idle, если игрок на земле и не движется
+        if (this.grounded && this.velocityX === 0) {
+            this.state = 'idle';
+        }
     }
     
     getCurrentSprite() {
-        if (this.state === 'jumping') {
+        if (this.state === 'jumping' || !this.grounded) {
             return 'jump';
         } else if (this.state === 'walking') {
             return `walk${this.currentFrame + 1}`;
