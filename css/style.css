@@ -1,0 +1,207 @@
+/* Японский стиль без градиентов */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #2b1b0e;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.game-container {
+    max-width: 1200px;
+    width: 100%;
+    background-color: #3d2a1a;
+    border: 4px solid #8b4513;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #5c3e2b;
+    border: 2px solid #b87c4b;
+    border-radius: 6px;
+}
+
+.title-section h1 {
+    color: #ffd700;
+    font-size: 28px;
+    text-shadow: 2px 2px 0 #8b0000;
+    letter-spacing: 2px;
+}
+
+.japanese-text {
+    color: #e6d5b8;
+    font-size: 18px;
+    font-style: italic;
+}
+
+.score-section {
+    text-align: center;
+    background-color: #2b1b0e;
+    padding: 8px 20px;
+    border: 2px solid #b87c4b;
+    border-radius: 4px;
+}
+
+.score-label {
+    color: #e6d5b8;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.score-value {
+    color: #ffd700;
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.canvas-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+    border: 3px solid #8b4513;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#gameCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background-color: #87CEEB;
+    cursor: none;
+}
+
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.game-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.overlay-content {
+    background-color: #5c3e2b;
+    border: 4px solid #b87c4b;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.overlay-content h2 {
+    color: #ffd700;
+    font-size: 32px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0 #8b0000;
+}
+
+.overlay-content p {
+    color: #e6d5b8;
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+.restart-btn {
+    background-color: #8b4513;
+    color: #ffd700;
+    border: 2px solid #b87c4b;
+    border-radius: 4px;
+    padding: 12px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.restart-btn:hover {
+    background-color: #b87c4b;
+    color: #fff;
+}
+
+.game-footer {
+    padding: 15px;
+    background-color: #5c3e2b;
+    border: 2px solid #b87c4b;
+    border-radius: 6px;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.control-key {
+    background-color: #2b1b0e;
+    color: #ffd700;
+    border: 2px solid #b87c4b;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+}
+
+.space-key {
+    min-width: 80px;
+}
+
+.instructions {
+    text-align: center;
+    color: #e6d5b8;
+    font-size: 16px;
+    padding: 5px;
+}
+
+/* Медиа-запросы для адаптивности */
+@media (max-width: 768px) {
+    .game-container {
+        padding: 10px;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .controls {
+        gap: 8px;
+    }
+    
+    .control-key {
+        padding: 5px 8px;
+        font-size: 14px;
+    }
+}

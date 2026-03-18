@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ninja Jump - Японский платформер</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <div class="title-section">
+                <h1>⚡ NINJA JUMP ⚡</h1>
+                <div class="japanese-text">忍者ジャンプ</div>
+            </div>
+            <div class="score-section">
+                <div class="score-label">Счёт</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+        </div>
+        
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas"></canvas>
+            <div class="game-overlay" id="gameOverlay">
+                <div class="overlay-content">
+                    <h2 id="overlayTitle">ИГРА ОКОНЧЕНА</h2>
+                    <p id="overlayMessage">Ваш счёт: <span id="finalScore">0</span></p>
+                    <button class="restart-btn" id="restartBtn">Начать заново</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-footer">
+            <div class="controls">
+                <div class="control-key">A/D</div>
+                <span>или</span>
+                <div class="control-key">←/→</div>
+                <span>движение</span>
+                <div class="control-key space-key">ПРОБЕЛ</div>
+                <span>прыжок</span>
+            </div>
+            <div class="instructions">
+                Прыгай по платформам, не упади в пропасть!
+            </div>
+        </div>
+    </div>
+
+    <script src="js/InputHandler.js"></script>
+    <script src="js/Player.js"></script>
+    <script src="js/Platform.js"></script>
+    <script src="js/Collision.js"></script>
+    <script src="js/Renderer.js"></script>
+    <script src="js/Game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
