@@ -67,37 +67,45 @@ class Player {
     }
     
     update(gravity) {
-        // Обновляем кулдаун прыжка
-        if (this.jumpCooldown > 0) {
-            this.jumpCooldown--;
-        } else {
-            this.canJump = true;
-        }
-        
-        // Применяем гравитацию
-        this.velocityY += gravity;
-        
-        // Ограничиваем максимальную скорость падения
-        if (this.velocityY > 15) {
-            this.velocityY = 15;
-        }
-        
-        // Обновляем позицию
-        this.x += this.velocityX;
-        this.y += this.velocityY;
-        
-        // Ограничение по бокам экрана
-        if (this.x < 0) {
-            this.x = 0;
-            this.velocityX = 0;
-        } else if (this.x + this.width > 800) {
-            this.x = 800 - this.width;
-            this.velocityX = 0;
-        }
-        
-        // Обновление анимации
-        this.updateAnimation();
+    // Обновляем кулдаун прыжка
+    if (this.jumpCooldown > 0) {
+        this.jumpCooldown--;
+    } else {
+        this.canJump = true;
     }
+    
+    // Применяем гравитацию
+    this.velocityY += gravity;
+    
+    // Ограничиваем максимальную скорость падения
+    if (this.velocityY > 12) {
+        this.velocityY = 12;
+    }
+    
+    // Сохраняем старую позицию для проверки
+    const oldY = this.y;
+    
+    // Обновляем позицию
+    this.x += this.velocityX;
+    this.y += this.velocityY;
+    
+    // Если игрок резко упал, проверяем, не пролетел ли он сквозь платформу
+    if (oldY < this.y && this.velocityY > 5) {
+        // Корректировка будет выполнена в обработке коллизий
+    }
+    
+    // Ограничение по бокам экрана
+    if (this.x < 0) {
+        this.x = 0;
+        this.velocityX = 0;
+    } else if (this.x + this.width > 800) {
+        this.x = 800 - this.width;
+        this.velocityX = 0;
+    }
+    
+    // Обновление анимации
+    this.updateAnimation();
+}
     
     updateAnimation() {
         if (this.state === 'walking') {
