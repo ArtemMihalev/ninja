@@ -196,6 +196,42 @@ body {
     margin: 20px 0;
 }
 
+/* Музыкальный контрол */
+.music-control {
+    text-align: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #b87c4b;
+}
+
+.music-btn {
+    background-color: #5c3e2b;
+    color: #ffd700;
+    border: 2px solid #b87c4b;
+    border-radius: 30px;
+    padding: 8px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.music-btn:hover {
+    background-color: #8b4513;
+    transform: scale(1.05);
+}
+
+.music-btn.muted {
+    opacity: 0.5;
+    background-color: #3d2a1a;
+}
+
+.music-icon {
+    font-size: 20px;
+}
+
 /* Медиа-запросы для адаптивности */
 @media (max-width: 768px) {
     .game-container {

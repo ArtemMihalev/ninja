@@ -43,16 +43,23 @@
         <div class="game-footer">
             <div class="controls">
                 <div class="control-key">A/D</div>
-                <span>или</span>
+                <span style="color: #e6d5b8">или</span>
                 <div class="control-key">←/→</div>
-                <span>движение</span>
+                <span style="color: #e6d5b8">движение</span>
                 <div class="control-key space-key">ПРОБЕЛ</div>
-                <span>прыжок</span>
+                <span style="color: #e6d5b8">прыжок</span>
             </div>
             <div class="instructions">
                 Прыгай по платформам, не упади в пропасть!
             </div>
         </div>
+        <div class="music-control">
+            <button id="musicToggle" class="music-btn" title="Вкл/Выкл музыку">
+                <span class="music-icon">🎵</span>
+                <span class="music-text">Музыка вкл</span>
+            </button>
+        </div>
+
     </div>
 
     <script src="js/InputHandler.js"></script>
@@ -61,6 +68,7 @@
     <script src="js/Collision.js"></script>
     <script src="js/Renderer.js"></script>
     <script src="js/Game.js"></script>
+    <script src="js/AudioManager.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
