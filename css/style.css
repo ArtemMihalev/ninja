@@ -185,6 +185,17 @@ body {
     padding: 5px;
 }
 
+/* Стили для стартового оверлея */
+#startOverlay {
+    background-color: rgba(43, 27, 14, 0.95);
+}
+
+#startOverlay .overlay-content p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin: 20px 0;
+}
+
 /* Медиа-запросы для адаптивности */
 @media (max-width: 768px) {
     .game-container {

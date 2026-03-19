@@ -2,9 +2,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('gameCanvas');
     const game = new Game(canvas);
     
-    game.init();
+    // Скрываем игру до нажатия старт
+    game.gameStarted = false;
     
-    // Обработка рестарта
+    // Обработка старта
+    const startBtn = document.getElementById('startBtn');
+    const startOverlay = document.getElementById('startOverlay');
+    
+    startBtn.addEventListener('click', () => {
+        startOverlay.style.opacity = '0';
+        startOverlay.style.pointerEvents = 'none';
+        game.gameStarted = true;
+        game.init();
+    });
+    
     // Обработка рестарта
     const restartBtn = document.getElementById('restartBtn');
     restartBtn.addEventListener('click', () => {
@@ -17,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             game.restart();
         }
     });
+    
     // Дополнительная обработка клавиш для предотвращения скролла страницы
     window.addEventListener('keydown', (e) => {
         if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) {

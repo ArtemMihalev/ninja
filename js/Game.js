@@ -59,7 +59,7 @@ reset() {
     this.platforms.push(new Platform(200, 320, 180, 20, 1.5));  // Нижняя
     this.platforms.push(new Platform(400, 250, 160, 20, 1.5));  // Средняя
     this.platforms.push(new Platform(600, 180, 170, 20, 1.5));  // Верхняя
-    this.platforms.push(new Platform(750, 280, 150, 20, 1.5));  // Дополнительная справа
+    
 }
     
     createPlayerOnPlatform() {
@@ -182,36 +182,46 @@ reset() {
     const minY = 150;
     const maxY = 350;
     
-    // Пытаемся найти подходящую Y-координату, чтобы платформы не пересекались
+    // Увеличиваем минимальное расстояние между платформами
     let y;
     let attempts = 0;
     let validPositionFound = false;
     
-    while (!validPositionFound && attempts < 20) {
+    while (!validPositionFound && attempts < 30) {
         y = Math.random() * (maxY - minY) + minY;
         validPositionFound = true;
         
         // Проверяем, не пересекается ли новая платформа с существующими
         for (let platform of this.platforms) {
-            // Проверяем вертикальное перекрытие (должно быть минимум 40 пикселей разницы)
-            if (Math.abs(platform.y - y) < 50) {
+            // Увеличиваем минимальное расстояние до 70 пикселей
+            if (Math.abs(platform.y - y) < 70) {
                 validPositionFound = false;
                 break;
+            }
+            
+            // Также проверяем горизонтальное расстояние для платформ на одной высоте
+            if (Math.abs(platform.y - y) < 30) {
+                // Если платформы почти на одной высоте, проверяем расстояние по X
+                const horizontalDistance = Math.abs((platform.x + platform.width/2) - (this.canvas.width + 50));
+                if (horizontalDistance < 200) {
+                    validPositionFound = false;
+                    break;
+                }
             }
         }
         attempts++;
     }
     
-    // Если не нашли идеальную позицию, используем случайную
     if (!validPositionFound) {
         y = Math.random() * (maxY - minY) + minY;
     }
     
-    const width = Math.random() * 100 + 100; // 100-200 пикселей
+    // Уменьшаем ширину платформ, чтобы игра была сложнее
+    const width = Math.random() * 80 + 80; // 80-160 пикселей (было 100-200)
     
-    // Базовая скорость
-    let speed = this.platformSpeed + (Math.random() * 1 - 0.5);
-    speed = Math.max(1.5, Math.min(4, speed)); // Ограничиваем скорость
+    // Базовая скорость - увеличиваем для сложности
+    let speed = this.platformSpeed + (Math.random() * 1 - 0.3);
+    speed = Math.max(2, Math.min(4.5, speed)); // Минимум 2, максимум 4.5
     
     this.platforms.push(new Platform(
         this.canvas.width,
@@ -221,16 +231,19 @@ reset() {
         speed
     ));
     
-    // Постепенно увеличиваем скорость (более плавно)
-    if (this.score > 1000) {
-        this.platformSpeed = 3.2;
+    // Увеличиваем скорость более агрессивно, чтобы игра была сложнее
+    if (this.score > 800) {
+        this.platformSpeed = 3.5;
         this.platformInterval = 45;
-    } else if (this.score > 600) {
-        this.platformSpeed = 2.8;
+    } else if (this.score > 400) {
+        this.platformSpeed = 3.0;
         this.platformInterval = 50;
-    } else if (this.score > 300) {
-        this.platformSpeed = 2.4;
+    } else if (this.score > 200) {
+        this.platformSpeed = 2.7;
         this.platformInterval = 55;
+    } else {
+        this.platformSpeed = 2.3;
+        this.platformInterval = 60;
     }
 }
     

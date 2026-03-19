@@ -10,8 +10,12 @@ class Collision {
     let wasGrounded = player.grounded;
     player.grounded = false;
     
+        const playerBottom = player.y + player.height;
+    
     // Сортируем платформы по Y-координате для более предсказуемой обработки
     const sortedPlatforms = [...platforms].sort((a, b) => a.y - b.y);
+
+    
     
     for (let platform of sortedPlatforms) {
         if (!platform.active) continue;
