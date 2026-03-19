@@ -27,46 +27,34 @@ class Game {
         this.gameLoop = this.gameLoop.bind(this);
     }
     
-    // Добавьте этот метод после constructor, перед createInitialPlatforms()
-reset() {
-    // Полный сброс игры
-    this.gameOver = false;
-    this.score = 0;
-    this.platformSpeed = 2; // Убедитесь, что здесь тоже 2
-    this.platformInterval = 60;
-    this.platformTimer = 0;
-    
-    // Очищаем платформы
-    this.platforms = [];
-    
-    // Создаём новые платформы (теперь с фиксированной медленной скоростью)
-    this.createInitialPlatforms();
-    
-    // Создаём нового игрока
-    this.player = this.createPlayerOnPlatform();
-    
-    // Обновляем UI
-    document.getElementById('score').textContent = '0';
-    document.getElementById('finalScore').textContent = '0';
-    document.getElementById('gameOverlay').classList.remove('active');
-}
+    reset() {
+        this.gameOver = false;
+        this.score = 0;
+        this.platformSpeed = 2;
+        this.platformInterval = 60;
+        this.platformTimer = 0;
+        
+        this.platforms = [];
+        this.createInitialPlatforms();
+        this.player = this.createPlayerOnPlatform();
+        
+        document.getElementById('score').textContent = '0';
+        document.getElementById('finalScore').textContent = '0';
+        document.getElementById('gameOverlay').classList.remove('active');
+    }
 
     createInitialPlatforms() {
-    // Очищаем существующие платформы
-    this.platforms = [];
-    
-    // Создаём платформы с достаточным вертикальным расстоянием
-    this.platforms.push(new Platform(200, 320, 180, 20, 1.5));  // Нижняя
-    this.platforms.push(new Platform(400, 250, 160, 20, 1.5));  // Средняя
-    this.platforms.push(new Platform(600, 180, 170, 20, 1.5));  // Верхняя
-    
-}
+        this.platforms = [];
+        
+        // Создаём платформы с большим вертикальным расстоянием
+        this.platforms.push(new Platform(200, 320, 180, 20, 1.5));  // Нижняя
+        this.platforms.push(new Platform(400, 240, 160, 20, 1.5));  // Средняя (выше на 80px)
+        this.platforms.push(new Platform(600, 150, 170, 20, 1.5));  // Верхняя (выше на 90px)
+    }
     
     createPlayerOnPlatform() {
-        // Находим самую нижнюю платформу для старта
-        let startPlatform = this.platforms[0]; // По умолчанию первая
+        let startPlatform = this.platforms[0];
         
-        // Ищем платформу, на которой удобно стоять (средняя высота)
         for (let platform of this.platforms) {
             if (platform.y > 250 && platform.y < 350) {
                 startPlatform = platform;
@@ -74,12 +62,10 @@ reset() {
             }
         }
         
-        // Создаём игрока прямо на платформе
-        const playerX = startPlatform.x + 50; // Немного правее левого края платформы
-        const playerY = startPlatform.y - 50; // Ставим прямо на платформу (высота игрока 50)
+        const playerX = startPlatform.x + 50;
+        const playerY = startPlatform.y - 50;
         const player = new Player(playerX, playerY, 40, 50);
         
-        // Важно: устанавливаем grounded = true, чтобы игрок стоял на платформе
         player.grounded = true;
         player.velocityY = 0;
         
@@ -91,14 +77,14 @@ reset() {
     }
     
     gameLoop() {
-    if (this.gameStarted) {
-        if (!this.gameOver) {
-            this.update();
+        if (this.gameStarted) {
+            if (!this.gameOver) {
+                this.update();
+            }
+            this.draw();
+            requestAnimationFrame(this.gameLoop);
         }
-        this.draw();
-        requestAnimationFrame(this.gameLoop);
     }
-}
     
     update() {
         // Обработка ввода
@@ -120,42 +106,15 @@ reset() {
         // Обновление игрока
         this.player.update(this.gravity);
         
-        // Проверка коллизий с платформами (важно делать после обновления)
+        // Проверка коллизий с платформами
         Collision.handlePlatformCollisions(this.player, this.platforms);
         
-        // Проверка падения с платформы
-        if (!this.player.grounded && this.player.velocityY > 0) {
-            // Игрок падает - проверяем, есть ли платформа под ним
-            let platformBelow = false;
-            const playerBottom = this.player.y + this.player.height;
-            
-            for (let platform of this.platforms) {
-                if (!platform.active) continue;
-                
-                // Проверяем, есть ли платформа прямо под игроком
-                if (playerBottom <= platform.y && 
-                    playerBottom + 10 >= platform.y && // Небольшой запас
-                    this.player.x + this.player.width > platform.x &&
-                    this.player.x < platform.x + platform.width) {
-                    platformBelow = true;
-                    break;
-                }
-            }
-            
-            // Если нет платформы под игроком, он может упасть
-            if (!platformBelow && this.player.y > 350) {
-                // Слишком низко - скоро упадёт на землю
-            }
-        }
-        
-        // Проверка столкновения с землёй (проигрыш)
-        // Проверка столкновения с землёй (проигрыш)
-        // Проверка столкновения с землёй (проигрыш)
+        // Проверка столкновения с землёй
         if (Collision.checkGroundCollision(this.player, this.canvas.height)) {
             this.gameOver = true;
             document.getElementById('finalScore').textContent = this.score;
             document.getElementById('gameOverlay').classList.add('active');
-            return; // Важно: выходим из update, но не останавливаем игру полностью
+            return;
         }
         
         // Обновление платформ
@@ -179,49 +138,84 @@ reset() {
     }
     
     generatePlatform() {
-    const minY = 150;
+    const minY = 120;
     const maxY = 350;
     
-    // Увеличиваем минимальное расстояние между платформами
     let y;
     let attempts = 0;
     let validPositionFound = false;
     
-    while (!validPositionFound && attempts < 30) {
-        y = Math.random() * (maxY - minY) + minY;
+    // Сохраняем занятые высоты
+    const occupiedHeights = new Set();
+    this.platforms.forEach(p => {
+        // Округляем до ближайших 20 пикселей для группировки
+        const heightGroup = Math.round(p.y / 20) * 20;
+        occupiedHeights.add(heightGroup);
+    });
+    
+    while (!validPositionFound && attempts < 100) {
+        // Генерируем высоту с шагом 20 пикселей для более равномерного распределения
+        y = Math.round((Math.random() * (maxY - minY) + minY) / 20) * 20;
+        
         validPositionFound = true;
         
-        // Проверяем, не пересекается ли новая платформа с существующими
+        // Проверяем, не занята ли эта высота или соседние
+        for (let h of occupiedHeights) {
+            if (Math.abs(h - y) < 40) { // Минимальное расстояние 40 пикселей
+                validPositionFound = false;
+                break;
+            }
+        }
+        
+        // Дополнительная проверка для уже существующих платформ
         for (let platform of this.platforms) {
-            // Увеличиваем минимальное расстояние до 70 пикселей
-            if (Math.abs(platform.y - y) < 70) {
+            // Вертикальное расстояние не менее 40 пикселей
+            if (Math.abs(platform.y - y) < 40) {
                 validPositionFound = false;
                 break;
             }
             
-            // Также проверяем горизонтальное расстояние для платформ на одной высоте
-            if (Math.abs(platform.y - y) < 30) {
-                // Если платформы почти на одной высоте, проверяем расстояние по X
-                const horizontalDistance = Math.abs((platform.x + platform.width/2) - (this.canvas.width + 50));
+            // Горизонтальное расстояние для платформ на похожей высоте
+            if (Math.abs(platform.y - y) < 60) {
+                const horizontalDistance = Math.abs(platform.x - this.canvas.width);
                 if (horizontalDistance < 200) {
                     validPositionFound = false;
                     break;
                 }
             }
         }
+        
         attempts++;
     }
     
     if (!validPositionFound) {
-        y = Math.random() * (maxY - minY) + minY;
+        // Если не нашли идеальную позицию, выбираем случайную
+        y = Math.round((Math.random() * (maxY - minY) + minY) / 20) * 20;
+        
+        // Но гарантируем, что она не совпадает с существующими
+        let safetyAttempts = 0;
+        while (safetyAttempts < 20) {
+            let conflict = false;
+            for (let platform of this.platforms) {
+                if (Math.abs(platform.y - y) < 30) {
+                    conflict = true;
+                    y = Math.round((Math.random() * (maxY - minY) + minY) / 20) * 20;
+                    break;
+                }
+            }
+            if (!conflict) break;
+            safetyAttempts++;
+        }
     }
     
-    // Уменьшаем ширину платформ, чтобы игра была сложнее
-    const width = Math.random() * 80 + 80; // 80-160 пикселей (было 100-200)
+    // Ограничиваем Y
+    y = Math.max(minY, Math.min(maxY, y));
     
-    // Базовая скорость - увеличиваем для сложности
-    let speed = this.platformSpeed + (Math.random() * 1 - 0.3);
-    speed = Math.max(2, Math.min(4.5, speed)); // Минимум 2, максимум 4.5
+    // Уменьшаем ширину, чтобы платформы не сливались
+    const width = Math.random() * 70 + 80; // 80-150 пикселей (было больше)
+    
+    let speed = this.platformSpeed + (Math.random() * 0.8 - 0.2);
+    speed = Math.max(2, Math.min(4, speed)); // Ограничиваем максимальную скорость
     
     this.platforms.push(new Platform(
         this.canvas.width,
@@ -231,19 +225,22 @@ reset() {
         speed
     ));
     
-    // Увеличиваем скорость более агрессивно, чтобы игра была сложнее
-    if (this.score > 800) {
-        this.platformSpeed = 3.5;
-        this.platformInterval = 45;
-    } else if (this.score > 400) {
-        this.platformSpeed = 3.0;
+    // Более плавное увеличение скорости
+    if (this.score > 1000) {
+        this.platformSpeed = 3.2;
         this.platformInterval = 50;
-    } else if (this.score > 200) {
-        this.platformSpeed = 2.7;
+    } else if (this.score > 600) {
+        this.platformSpeed = 2.9;
         this.platformInterval = 55;
-    } else {
-        this.platformSpeed = 2.3;
+    } else if (this.score > 300) {
+        this.platformSpeed = 2.6;
         this.platformInterval = 60;
+    } else if (this.score > 150) {
+        this.platformSpeed = 2.3;
+        this.platformInterval = 65;
+    } else {
+        this.platformSpeed = 2.0;
+        this.platformInterval = 70;
     }
 }
     
@@ -251,28 +248,16 @@ reset() {
         this.renderer.clear();
         this.renderer.drawBackground();
         
-        // Рисуем землю (красная линия)
         this.ctx.fillStyle = '#8b0000';
         this.ctx.fillRect(0, this.canvas.height - 5, this.canvas.width, 5);
         
-        // Рисуем платформы
         this.platforms.forEach(platform => this.renderer.drawPlatform(platform));
-        
-        // Рисуем игрока
         this.renderer.drawPlayer(this.player);
-        
-        // Рисуем счёт
         this.renderer.drawScore(this.score);
-        
-        // Отладочная информация (можно убрать потом)
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = '12px Arial';
-        this.ctx.fillText(`Grounded: ${this.player.grounded}`, 10, 20);
-        this.ctx.fillText(`Y: ${Math.round(this.player.y)}`, 10, 40);
     }
     
     restart() {
-    this.reset();
-    console.log('Игра перезапущена через restart');
-}
+        this.reset();
+        console.log('Игра перезапущена через restart');
+    }
 }

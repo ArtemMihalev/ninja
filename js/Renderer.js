@@ -21,6 +21,7 @@ class Renderer {
         this.sprites.walk1 = this.createNinjaSprite('walk1', '#34495e');
         this.sprites.walk2 = this.createNinjaSprite('walk2', '#3d566e');
         
+        this.sprites.doublejump = this.createNinjaSprite('doublejump', '#27ae60');
         // Фон
         this.background = this.createBackground();
     }
@@ -72,7 +73,15 @@ class Renderer {
             // Нога назад
             ctx.fillStyle = '#1a2632';
             ctx.fillRect(25, 40, 5, 8);
-        }
+        } else if (type === 'doublejump') {
+    // Две руки вверх для двойного прыжка
+    ctx.fillStyle = '#1a2632';
+    ctx.fillRect(0, 10, 5, 15);
+    ctx.fillRect(35, 10, 5, 15);
+    // Вторая тень/эффект
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillRect(10, 20, 20, 10);
+}
         
         return canvas;
     }

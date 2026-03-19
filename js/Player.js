@@ -22,6 +22,10 @@ class Player {
         // Защита от множественных прыжков
         this.canJump = true;
         this.jumpCooldown = 0;
+
+        this.doubleJumpAvailable = false; // Доступен ли двойной прыжок
+        this.maxJumps = 2; // Максимальное количество прыжков
+        this.jumpsLeft = 2; // Оставшиеся прыжки
     }
     
     getCollisionRect() {
@@ -57,14 +61,26 @@ class Player {
     }
     
     jump() {
-        if (this.grounded && this.canJump) {
-            this.velocityY = this.jumpStrength;
-            this.grounded = false;
-            this.state = 'jumping';
-            this.canJump = false;
-            this.jumpCooldown = 10; // Небольшая задержка перед следующим прыжком
-        }
+    // Прыжок с земли
+    if (this.grounded && this.jumpsLeft > 0) {
+        this.velocityY = this.jumpStrength;
+        this.grounded = false;
+        this.state = 'jumping';
+        this.jumpsLeft--; // Используем один прыжок
+        this.doubleJumpAvailable = true; // Активируем двойной прыжок
+        this.jumpCooldown = 5;
     }
+    // Двойной прыжок в воздухе
+    else if (!this.grounded && this.jumpsLeft > 0 && this.doubleJumpAvailable) {
+        this.velocityY = this.jumpStrength * 0.9; // Чуть слабее основного прыжка
+        this.state = 'jumping';
+        this.jumpsLeft--;
+        this.doubleJumpAvailable = false; // Запрещаем третий прыжок
+        
+        // Небольшой визуальный эффект (можно добавить позже)
+        console.log('Double jump!');
+    }
+}
     
     update(gravity) {
     // Обновляем кулдаун прыжка
@@ -102,7 +118,12 @@ class Player {
         this.x = 800 - this.width;
         this.velocityX = 0;
     }
-    
+
+    if (this.grounded) {
+    this.jumpsLeft = this.maxJumps;
+    this.doubleJumpAvailable = true;
+    }
+
     // Обновление анимации
     this.updateAnimation();
 }

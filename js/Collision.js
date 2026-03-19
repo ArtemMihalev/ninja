@@ -10,14 +10,20 @@ class Collision {
     let wasGrounded = player.grounded;
     player.grounded = false;
     
-        const playerBottom = player.y + player.height;
+    // Сначала проверяем столкновения для платформ под игроком (приоритет приземления)
+    const platformsBelow = platforms.filter(p => 
+        p.active && p.y > player.y - 5 && p.y < player.y + player.height + 20
+    );
     
-    // Сортируем платформы по Y-координате для более предсказуемой обработки
-    const sortedPlatforms = [...platforms].sort((a, b) => a.y - b.y);
-
+    // Потом остальные
+    const otherPlatforms = platforms.filter(p => 
+        p.active && !platformsBelow.includes(p)
+    );
     
+    // Обрабатываем все платформы
+    const allPlatforms = [...platformsBelow, ...otherPlatforms];
     
-    for (let platform of sortedPlatforms) {
+    for (let platform of allPlatforms) {
         if (!platform.active) continue;
         
         const playerRect = player.getCollisionRect();
@@ -35,51 +41,44 @@ class Collision {
             const platformLeft = platformRect.x;
             
             // Вычисляем перекрытия
-            const overlapBottom = playerBottom - platformTop; // На сколько игрок ниже верха платформы
-            const overlapTop = platformBottom - playerTop;    // На сколько игрок выше низа платформы
+            const overlapBottom = playerBottom - platformTop;
+            const overlapTop = platformBottom - playerTop;
             const overlapLeft = playerRight - platformLeft;
             const overlapRight = platformRight - playerLeft;
             
-            // Приоритет: сначала проверяем возможность встать сверху
-            // Игрок может встать на платформу, если:
-            // 1. Он падает вниз (velocityY >= 0)
-            // 2. Его нижняя часть выше или равна верху платформы с небольшим допуском
-            // 3. Перекрытие по вертикали небольшое (чтобы не застревать)
-            if (player.velocityY >= 0 && 
-                playerBottom <= platformTop + 15 && // Допуск 15 пикселей
-                playerBottom > platformTop - 5 &&
-                overlapBottom < 20) {
+            // Находим минимальное перекрытие
+            const minOverlap = Math.min(overlapBottom, overlapTop, overlapLeft, overlapRight);
+            
+            // ПРИЗЕМЛЕНИЕ СВЕРХУ - игрок падает на платформу
+            if (minOverlap === overlapBottom && 
+                player.velocityY >= 0 && 
+                overlapBottom < 20 &&
+                playerBottom <= platformTop + 15) {
                 
-                // Встаём на платформу
                 player.y = platformTop - player.height;
                 player.velocityY = 0;
                 player.grounded = true;
                 continue;
             }
             
-            // Проверка удара головой (снизу вверх)
-            if (player.velocityY < 0 && 
-                playerTop >= platformBottom - 15 && 
-                playerTop < platformBottom + 5 &&
-                overlapTop < 20) {
+            // УДАР ГОЛОВОЙ - только если игрок явно движется вверх
+            if (minOverlap === overlapTop && 
+                player.velocityY < -5 && 
+                overlapTop < 15) {
                 
-                // Отскакиваем от нижней части платформы
                 player.y = platformBottom;
                 player.velocityY = 0;
                 continue;
             }
             
-            // Боковые столкновения (с меньшим приоритетом)
-            // Проверяем, не пытается ли игрок пройти сквозь платформу сбоку
-            if (player.velocityX > 0 && overlapLeft < overlapRight && overlapLeft < 15) {
-                // Столкновение слева от платформы
-                if (player.y + player.height > platformTop + 5 && player.y < platformBottom - 5) {
+            // БОКОВЫЕ СТОЛКНОВЕНИЯ - только если не обработали вертикальные
+            // Проверяем, что игрок находится на уровне платформы
+            const verticalOverlap = Math.min(playerBottom - platformTop, platformBottom - playerTop);
+            if (verticalOverlap > 10 && verticalOverlap < player.height - 10) {
+                if (player.velocityX > 0 && minOverlap === overlapLeft && overlapLeft < 10) {
                     player.x = platformLeft - player.width;
                     player.velocityX = 0;
-                }
-            } else if (player.velocityX < 0 && overlapRight < overlapLeft && overlapRight < 15) {
-                // Столкновение справа от платформы
-                if (player.y + player.height > platformTop + 5 && player.y < platformBottom - 5) {
+                } else if (player.velocityX < 0 && minOverlap === overlapRight && overlapRight < 10) {
                     player.x = platformRight;
                     player.velocityX = 0;
                 }
@@ -87,22 +86,17 @@ class Collision {
         }
     }
     
-    // Дополнительная проверка: если игрок только что оторвался от платформы, 
-    // но всё ещё должен на ней стоять
+    // Дополнительная проверка для стояния на платформе
     if (wasGrounded && !player.grounded) {
         for (let platform of platforms) {
             if (!platform.active) continue;
             
-            const playerRect = player.getCollisionRect();
-            const platformRect = platform.getCollisionRect();
-            
-            // Проверяем, находится ли игрок прямо над платформой
-            if (playerRect.y + playerRect.height <= platformRect.y + 10 &&
-                playerRect.y + playerRect.height >= platformRect.y - 5 &&
-                playerRect.x < platformRect.x + platformRect.width &&
-                playerRect.x + playerRect.width > platformRect.x) {
+            if (player.y + player.height <= platform.y + 10 &&
+                player.y + player.height >= platform.y - 2 &&
+                player.x + player.width > platform.x &&
+                player.x < platform.x + platform.width) {
                 
-                player.y = platformRect.y - player.height;
+                player.y = platform.y - player.height;
                 player.grounded = true;
                 player.velocityY = 0;
                 break;
@@ -112,12 +106,11 @@ class Collision {
 }
     
     static checkGroundCollision(player, groundY) {
-        // Даём небольшой запас для проверки (2 пикселя)
         if (player.y + player.height >= groundY - 2) {
             player.y = groundY - player.height;
             player.velocityY = 0;
             player.grounded = true;
-            return true; // Игрок коснулся земли - проигрыш
+            return true;
         }
         return false;
     }
